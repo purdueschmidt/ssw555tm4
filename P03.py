@@ -5,6 +5,9 @@ import datetime
 from datetime import date
 from __builtin__ import str
 
+def stringToDate(str):
+	return datetime.datetime.strptime(str, "%d %b %Y").date()
+
 class GedI: 
 	def __init__(self, pointer):
 		self.pointer = pointer
@@ -18,7 +21,7 @@ class GedI:
 		
 	def getAge(self):
 		if self.birt is not None:
-			birtDate = datetime.datetime.strptime(self.birt, "%d %b %Y").date()
+			birtDate = stringToDate(self.birt)
 			curDate = date.today()
 			return curDate.year - birtDate.year - ((curDate.month, curDate.day) < (birtDate.month, birtDate.day))
 			
@@ -98,7 +101,7 @@ class GedList:
 								else:
 									dateline[2] = "0" + dateline[2] if int(dateline[2]) < 10 else dateline[2]
 									tempged.deat = dateline[2] + " " + dateline[3] + " " + dateline[4]
-								i += 1  #Skip an extra line since we read 2
+								i += 1	#Skip an extra line since we read 2
 							elif spl2[1] == "SEX":
 								tempged.sex = spl2[2]
 							elif spl2[1] == "FAMC":
@@ -174,9 +177,9 @@ class GedList:
 
 	# def __str__(self):
 
-	# 	ret = ""
+	#	ret = ""
 
-	# 	return ret
+	#	return ret
 
 	def getKey(self, item):
 		if 'F' in item:
@@ -189,46 +192,35 @@ class GedList:
 		sorted_x = sorted(self.list.keys(), None, key=self.getKey)				
 		for sorted_key in sorted_x:		
 			for key, value in self.list.iteritems():
- 						if re.search("@I.+", key) and key == sorted_key:
- 							print key + " " + value.firstname + " " + value.lastname
-					 	elif re.search("@F.+", key) and key == sorted_key:
-					 		husb = self.list[value.husb]
-					 		wife = self.list[value.wife]
-					 		print key + " Husband: " + husb.firstname + " " + husb.lastname + " Wife: " + wife.firstname + " " + wife.lastname
+						if re.search("@I.+", key) and key == sorted_key:
+							print key + " " + value.firstname + " " + value.lastname
+						elif re.search("@F.+", key) and key == sorted_key:
+							husb = self.list[value.husb]
+							wife = self.list[value.wife]
+							print key + " Husband: " + husb.firstname + " " + husb.lastname + " Wife: " + wife.firstname + " " + wife.lastname
 							
 	def parentMarriage(self):
 		# note: in python 3, iter() is the exact same as iteritems(). https://stackoverflow.com/questions/10458437/what-is-the-difference-between-dict-items-and-dict-iteritems
 		for id, item in self.list.iteritems():
 			if re.search("@I.+", id):
-				testFail = False
 				if item.fams is not None and item.famc is not None:
 					spouseId = self.list[item.fams].wife if self.list[item.fams].husb == id else self.list[item.fams].husb
 					parentId1 = self.list[item.famc].wife
 					parentId2 = self.list[item.famc].husb
 					
 					if parentId1 == spouseId:
-						testFail = True
-						print item.firstname + " " + item.lastname + " is married to their parent " + self.list[parentId1].firstname + " " + self.list[parentId1].lastname + " -- Failed"
+						print "Error: " + item.firstname + " " + item.lastname + " is married to their parent " + self.list[parentId1].firstname + " " + self.list[parentId1].lastname
 					elif parentId2 == spouseId:
-						testFail = True
-						print item.firstname + " " + item.lastname + " is married to their parent " + self.list[parentId2].firstname + " " + self.list[parentId2].lastname + " -- Failed"
-						
-				if testFail == False:
-					print item.firstname + " "  + item.lastname + " not married to parent -- Passed"
+						print "Error: " + item.firstname + " " + item.lastname + " is married to their parent " + self.list[parentId2].firstname + " " + self.list[parentId2].lastname
 			
 	def minorMarriage(self):
 		for id, item in self.list.iteritems():
 			if re.search("@I.+", id):
-				testFail = False
 				if item.fams is not None:
 					spouseId = self.list[item.fams].wife if self.list[item.fams].husb == id else self.list[item.fams].husb
 					
 					if self.list[spouseId].getAge() < 18:
-						testFail = True
-						print item.firstname + " " + item.lastname + " is married to a minor " + self.list[spouseId].firstname + " " + self.list[spouseId].lastname + " -- Failed"
-						
-				if testFail == False:
-					print item.firstname + " " + item.lastname + " not married to minor -- Passed"
+						print "Error: " + item.firstname + " " + item.lastname + " is married to a minor " + self.list[spouseId].firstname + " " + self.list[spouseId].lastname
 						
 	def birthDeathCheck(self):
 		for id, item in self.list.iteritems():
@@ -236,8 +228,8 @@ class GedList:
 				testFail = False
 				if item.deat is None:
 					continue
-				birthDate = datetime.datetime.strptime(item.birt, "%d %b %Y").date()
-				deathDate = datetime.datetime.strptime(item.deat, "%d %b %Y").date()
+				birthDate = stringToDate(item.birt)
+				deathDate = stringToDate(item.deat)
 				if birthDate>deathDate:
 					testFail = True
 					print item.firstname + " " + item.lastname + " has died before they are born -- Failed"
@@ -245,43 +237,43 @@ class GedList:
 				if testFail == False:
 					print item.firstname + " " + item.lastname + "'s birth and death dates look normal -- Passed"
 					
- 	def childParentBirthDeathCheck(self):
- 		childDod = None
- 		for id, item in self.list.iteritems():
-		    if "@F" in id:
-		    	fatherDob = datetime.datetime.strptime(self.list.get(item.husb).birt, "%d %b %Y").date() 
-		    	motherDob = datetime.datetime.strptime(self.list.get(item.wife).birt, "%d %b %Y").date()
-		    	for child in item.chil:
-		    		
-		    		if self.list.get(child).birt:
-		    		    childDob  = datetime.datetime.strptime(self.list.get(child).birt, "%d %b %Y").date()
-		    		    if childDob < fatherDob or childDob < motherDob:
-		    		        print "Error: " + self.list.get(child).firstname + " " + self.list.get(child).lastname + "'s birth is before their parent's birth."
+	def childParentBirthDeathCheck(self):
+		childDod = None
+		for id, item in self.list.iteritems():
+			if "@F" in id:
+				fatherDob = stringToDate(self.list.get(item.husb).birt)
+				motherDob = stringToDate(self.list.get(item.wife).birt)
+				for child in item.chil:
+					
+					if self.list.get(child).birt:
+						childDob  = stringToDate(self.list.get(child).birt)
+						if childDob < fatherDob or childDob < motherDob:
+							print "Error: " + self.list.get(child).firstname + " " + self.list.get(child).lastname + "'s birth is before their parent's birth."
 
-		    		if self.list.get(child).deat:
-		    		    childDod  = datetime.datetime.strptime(self.list.get(child).deat, "%d %b %Y").date()
-		    		    if childDod < fatherDob or childDod < motherDob:	
-		    			    print "Error: " + self.list.get(child).firstname + " " + self.list.get(child).lastname + "'s death is before their parent's birth."
+					if self.list.get(child).deat:
+						childDod  = stringToDate(self.list.get(child).deat)
+						if childDod < fatherDob or childDod < motherDob:	
+							print "Error: " + self.list.get(child).firstname + " " + self.list.get(child).lastname + "'s death is before their parent's birth."
 
-				        			
+									
 	def timeLine(self):
 		timelinelist = {}
 		for id, item in self.list.iteritems():
 			if "@I" in id:
 				if item.birt is not None:
-					birthday = datetime.datetime.strptime(item.birt, "%d %b %Y").date()
+					birthday = stringToDate(item.birt)
 					timelinelist[birthday] = item.firstname + " " + item.lastname + " was born on " + str(birthday)
 				if item.deat is not None:
-					deathday = datetime.datetime.strptime(item.deat, "%d %b %Y").date()
+					deathday = stringToDate(item.deat)
 					timelinelist[deathday] = item.firstname + " " + item.lastname + " died on " + str(deathday)
 			elif "@F" in id:
 				if item.marr is not None:
-					marrday = datetime.datetime.strptime(item.marr, "%d %b %Y").date()
+					marrday = stringToDate(item.marr)
 					husband = self.list.get(item.husb)
 					wife = self.list.get(item.wife)
 					timelinelist[marrday] = husband.firstname + " " + husband.lastname + " and " + wife.firstname + " " + wife.lastname + " were married on " +str(marrday)
 				if item.div is not None:
-					divday =datetime.datetime.strptime(item.div, "%d %b %Y").date()
+					divday =stringToDate(item.div)
 					timelinelist[divday] = husband.firstname + " " + husband.lastname + " and " + wife.firstname + " " + wife.lastname + " got divorced on " + str(divday)
 
 		sorted_x = [value for (key, value) in sorted(timelinelist.items())]
@@ -290,37 +282,63 @@ class GedList:
 			print event
 
 	def deathMarriageCheck(self):
-	   	for id, item in self.list.iteritems():
+		for id, item in self.list.iteritems():
 			if "@F" in id:
-				if item.marr:				    
-				    marrDate = datetime.datetime.strptime(item.marr, "%d %b %Y").date()
-				    
-				    if self.list[item.husb].deat is not None:
-				    	husbDeathDate=datetime.datetime.strptime(self.list[item.husb].deat, "%d %b %Y").date()
-				    	if husbDeathDate < marrDate:
-				    	    print "Error: " + self.list[item.husb].firstname + " " + self.list[item.husb].lastname + " died before marriage"
-				    	
+				if item.marr:					
+					marrDate = stringToDate(item.marr)
+					
+					if self.list[item.husb].deat is not None:
+						husbDeathDate=stringToDate(self.list[item.husb].deat)
+						if husbDeathDate < marrDate:
+							print "Error: " + self.list[item.husb].firstname + " " + self.list[item.husb].lastname + " died before marriage"
+						
 					if self.list[item.wife].deat is not None:
-						wifeDeathDate=datetime.datetime.strptime(self.list[item.wife].deat, "%d %b %Y").date()
+						wifeDeathDate=stringToDate(self.list[item.wife].deat)
 						if wifeDeathDate < marrDate:
 							print "Error: " + self.list[item.wife].firstname + " " + self.list[item.wife].lastname + " died before marriage"
 											
 	def marriageBirthCheck(self):
-	   	for id, item in self.list.iteritems():
+		for id, item in self.list.iteritems():
 			if "@F" in id:
-				if item.marr:				    
-				    marrDate = datetime.datetime.strptime(item.marr, "%d %b %Y").date()
-				    
-				    if self.list[item.husb].birt is not None:
-				    	husbBirthDate=datetime.datetime.strptime(self.list[item.husb].birt, "%d %b %Y").date()
-				    	if husbBirthDate > marrDate:
-				    	    print "Error: " + self.list[item.husb].firstname + " " + self.list[item.husb].lastname + " was born after marriage"
-				    	
+				if item.marr:					
+					marrDate = stringToDate(item.marr)
+					
+					if self.list[item.husb].birt is not None:
+						husbBirthDate=stringToDate(self.list[item.husb].birt)
+						if husbBirthDate > marrDate:
+							print "Error: " + self.list[item.husb].firstname + " " + self.list[item.husb].lastname + " was born after marriage"
+						
 					if self.list[item.wife].birt is not None:
-						wifeBirthDate=datetime.datetime.strptime(self.list[item.wife].birt, "%d %b %Y").date()
+						wifeBirthDate=stringToDate(self.list[item.wife].birt)
 						if wifeBirthDate > marrDate:
-							print "Error: " + self.list[item.wife].firstname + " " + self.list[item.wife].lastname + " was born after marriage"
+							print "Error: " + self.list[item.wife].firstname + " " + self.list[item.wife].lastname + " was born after marriage"			
 							
+	def multipleMarriageCheck(self):
+		spouseDict = {}
+		for id, item in self.list.iteritems():
+			if "@F" in id:
+				if item.div is None:
+					if item.husb not in spouseDict:
+						spouseDict[item.husb] = []
+					if item.wife not in spouseDict:
+						spouseDict[item.wife] = []
+					spouseDict[item.husb].append(id)
+					spouseDict[item.wife].append(id)
+			
+		for key, values in spouseDict.iteritems():
+			if len(values) > 1:
+				print "Error: " + self.list[spouseDict[key]].firstname + self.list[spouseDict[key]].lastname + " is in multiple active marriages"
+				
+	def ageLimitCheck(self):
+		for id, item in self.list.iteritems():
+			if "@I" in id:
+				age = item.getAge()
+				
+				if age > 150:
+					print "Error: " + item.firstname + " " + item.lastname + " is older than 150 years"
+				
+				
+		
 #and now for the main
 
 g = GedList("gedcoms/sprint1.ged")
@@ -333,3 +351,4 @@ g.birthDeathCheck()
 g.timeLine()
 g.deathMarriageCheck()
 g.marriageBirthCheck()
+g.multipleMarriageCheck()
