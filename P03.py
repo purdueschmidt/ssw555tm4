@@ -336,7 +336,23 @@ class GedList:
 				
 				if age > 150:
 					print "Error: " + item.firstname + " " + item.lastname + " is older than 150 years"
-				
+
+	def whosAlive(self):
+		for id, item in self.list.iteritems():
+			if "@I" in id:
+				if item.deat is None:
+					print item.firstname + " " + item.lastname + " is currently alive."
+	
+	def widowsAndWidowers(self):
+		for id, item in self.list.iteritems():
+			if "@F" in id:
+				wife = self.list[item.wife]
+				husband = self.list[item.husb]
+				if wife.deat is not None and husband.deat is None:
+					print husband.firstname + " " + husband.lastname + " is a widdower."
+
+				elif husband.deat is not None and wife.deat is None:
+					print wife.firstname + " " + wife.lastname + " is a widdow."
 				
 		
 #and now for the main
@@ -352,3 +368,5 @@ g.timeLine()
 g.deathMarriageCheck()
 g.marriageBirthCheck()
 g.multipleMarriageCheck()
+g.whosAlive()
+g.widowsAndWidowers()
