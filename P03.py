@@ -4,9 +4,13 @@ import time
 import datetime
 from datetime import date
 from __builtin__ import str
+from posix import WIFEXITED
 
 def stringToDate(str):
-	return datetime.datetime.strptime(str, "%d %b %Y").date()
+	if str is not None:
+		return datetime.datetime.strptime(str, "%d %b %Y").date()
+	else:
+		return str
 
 class GedI: 
 	def __init__(self, pointer):
@@ -243,18 +247,26 @@ class GedList:
 			if "@F" in id:
 				fatherDob = stringToDate(self.list.get(item.husb).birt)
 				motherDob = stringToDate(self.list.get(item.wife).birt)
+				fatherDod = stringToDate(self.list.get(item.husb).deat)
+				motherDod = stringToDate(self.list.get(item.wife).deat)
+
 				for child in item.chil:
 					
 					if self.list.get(child).birt:
 						childDob  = stringToDate(self.list.get(child).birt)
 						if childDob < fatherDob or childDob < motherDob:
 							print "Error: " + self.list.get(child).firstname + " " + self.list.get(child).lastname + "'s birth is before their parent's birth."
+						if fatherDod is not None:
+							if childDob > fatherDod:
+								print "Error: " + self.list.get(child).firstname + " " + self.list.get(child).lastname + "'s birth is after their parent's death."
+						if motherDod is not None:
+							if childDob > motherDod:
+								print "Error: " + self.list.get(child).firstname + " " + self.list.get(child).lastname + "'s birth is after their parent's death."
 
 					if self.list.get(child).deat:
 						childDod  = stringToDate(self.list.get(child).deat)
 						if childDod < fatherDob or childDod < motherDob:	
 							print "Error: " + self.list.get(child).firstname + " " + self.list.get(child).lastname + "'s death is before their parent's birth."
-
 									
 	def timeLine(self):
 		timelinelist = {}
@@ -349,12 +361,21 @@ class GedList:
 				wife = self.list[item.wife]
 				husband = self.list[item.husb]
 				if wife.deat is not None and husband.deat is None:
-					print husband.firstname + " " + husband.lastname + " is a widdower."
+					print husband.firstname + " " + husband.lastname + " is a widower."
 
 				elif husband.deat is not None and wife.deat is None:
-					print wife.firstname + " " + wife.lastname + " is a widdow."
+					print wife.firstname + " " + wife.lastname + " is a widow."
 				
-		
+	def siblingMarriage(self):
+		for id, item in self.list.iteritems():
+			if "@F" in id:
+				wife = self.list[item.wife]
+				husband = self.list[item.husb]
+				wifeFam = wife.famc
+				husbandFam = husband.famc
+
+				if wifeFam == husbandFam and wifeFam is not None and husbandFam is not None:
+					print "Anomaly: " + wife.firstname + " " + wife.lastname + " and " + husband.firstname + " " + husband.lastname + " are siblings and married."
 #and now for the main
 
 g = GedList("gedcoms/sprint1.ged")
@@ -370,3 +391,4 @@ g.marriageBirthCheck()
 g.multipleMarriageCheck()
 g.whosAlive()
 g.widowsAndWidowers()
+g.siblingMarriage()
