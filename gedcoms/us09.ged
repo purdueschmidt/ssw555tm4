@@ -1,0 +1,21 @@
+0 HEAD
+1 SOUR Family Echo
+2 WWW http://www.familyecho.com/
+1 FILE Family 2
+1 DATE 25 FEB 2015
+1 DEST ANSTFILE
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 SUBM @I1@
+2 NAME Jim
+1 SUBN
+1 CHAR UTF-8
+0 @I1@ INDI
+1 NAME Francisco /Bernini/
+2 GIVN Francisco
+2 SURN Bernini
+1 SEX M
+1 BIRT
+2 DATE 8 MAR 1840
+0 TRLR
