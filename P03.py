@@ -4,7 +4,6 @@ import time
 import datetime
 from datetime import date
 from __builtin__ import str
-from posix import WIFEXITED
 
 def stringToDate(str):
 	if str is not None:
