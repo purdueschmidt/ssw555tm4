@@ -229,17 +229,12 @@ class GedList:
 	def birthDeathCheck(self):
 		for id, item in self.list.iteritems():
 			if "@I" in id:
-				testFail = False
 				if item.deat is None:
 					continue
 				birthDate = stringToDate(item.birt)
 				deathDate = stringToDate(item.deat)
 				if birthDate>deathDate:
-					testFail = True
-					print item.firstname + " " + item.lastname + " has died before they are born -- Failed"
-						
-				if testFail == False:
-					print item.firstname + " " + item.lastname + "'s birth and death dates look normal -- Passed"
+					print "Error: " + item.firstname + " " + item.lastname + " has died before they are born"
 					
 	def childParentBirthDeathCheck(self):
 		childDod = None
@@ -339,7 +334,7 @@ class GedList:
 			
 		for key, values in spouseDict.iteritems():
 			if len(values) > 1:
-				print "Error: " + self.list[spouseDict[key]].firstname + self.list[spouseDict[key]].lastname + " is in multiple active marriages"
+				print "Error: " + self.list[key].firstname + " " + self.list[key].lastname + " is in multiple active marriages"
 				
 	def ageLimitCheck(self):
 		for id, item in self.list.iteritems():
@@ -389,6 +384,7 @@ g.timeLine()
 g.deathMarriageCheck()
 g.marriageBirthCheck()
 g.multipleMarriageCheck()
+g.ageLimitCheck()
 g.whosAlive()
 g.widowsAndWidowers()
 g.siblingMarriage()
