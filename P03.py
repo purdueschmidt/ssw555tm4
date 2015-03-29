@@ -319,7 +319,34 @@ class GedList:
                         wifeBirthDate=stringToDate(self.list[item.wife].birt)
                         if wifeBirthDate > marrDate:
                             print "Error: " + self.list[item.wife].firstname + " " + self.list[item.wife].lastname + " was born after marriage"         
-                            
+    
+    def testDivorceBirthDeathCheck(self):
+		for id, item in self.list.iteritems():
+			if "@F" in id:
+				if item.div:
+					divorceDate = stringToDate(item.div)
+					
+					if self.list[item.husb].birt is not None:
+						husbBirthDate=stringToDate(self.list[item.husb].birt)
+						if husbBirthDate > divorceDate:
+							print "Error: " + self.list[item.husb].firstname + " " + self.list[item.husb].lastname + " was born after his divorce"
+
+					if self.list[item.wife].birt is not None:
+						wifeBirthDate=stringToDate(self.list[item.wife].birt)
+						if wifeBirthDate > divorceDate:
+							print "Error: " + self.list[item.wife].firstname + " " + self.list[item.wife].lastname + " was born after her divorce"		 
+
+					if self.list[item.husb].deat is not None:
+						husbDeathDate=stringToDate(self.list[item.husb].deat)
+						if husbDeathDate < divorceDate:
+							print "Error: " + self.list[item.husb].firstname + " " + self.list[item.husb].lastname + " has died before his divorce"
+
+					if self.list[item.wife].deat is not None:
+						wifeDeathDate=stringToDate(self.list[item.wife].deat)
+						if wifeDeathDate < divorceDate:
+							print "Error: " + self.list[item.wife].firstname + " " + self.list[item.wife].lastname + " has died before her divorce"		 
+					
+					    	                        
     def testMultipleMarriageCheck(self):
         spouseDict = {}
         for id, item in self.list.iteritems():
@@ -412,3 +439,4 @@ class GedList:
 
 g = GedList("gedcoms/sprint1.ged")
 g.runTests()
+#g.testDivorceBirthDeathCheck()
