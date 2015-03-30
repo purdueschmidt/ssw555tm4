@@ -423,6 +423,24 @@ class GedList:
             print tabString + "Mother: " + mother.firstname + " " + mother.lastname
             for child in self.list[id].chil:
                 self.printFamily(self.list[child].fams, tabs + 1)
+
+    def testDeadWhileMarried(self):
+        for id, item in self.list.iteritems():
+            if "@F" in id:
+                if item.marr:                    
+                    if self.list[item.husb].deat is not None:
+                        print self.list[item.husb].firstname + " " + self.list[item.husb].lastname + " is dead while married."
+                        
+                    if self.list[item.wife].deat is not None:
+                        print self.list[item.wife].firstname + " " + self.list[item.wife].lastname + " is dead while married."
+
+
+    def testBirthdayMonth(self):
+        for id, item in self.list.iteritems():
+            if "@I" in id:
+                birtDate = stringToDate(item.birt)
+                if birtDate.month == datetime.datetime.now().month:
+                    print item.firstname + " " + item.lastname + " has a birthday this month!"
     
     #Runs all the tests, make sure function names start with "test"
     def runTests(self, *args, **kwargs):
