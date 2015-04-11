@@ -441,6 +441,30 @@ class GedList:
                 birtDate = stringToDate(item.birt)
                 if birtDate.month == datetime.datetime.now().month:
                     print item.firstname + " " + item.lastname + " has a birthday this month!"
+
+
+    def testDeaths(self):
+        print "Summary of Deaths:"
+        for id, item in self.list.iteritems():
+            if "@I" in id:
+                if item.deat is not None:
+                    print item.firstname + " " + item.lastname + " Born: " + item.birt + " Died: " + item.deat
+
+    def testMotherFather(self):
+        for id, item in self.list.iteritems():
+            if "@I" in id:
+                if item.famc is not None:
+                    if (self.list[item.famc].wife is None) or (self.list[self.list[item.famc].wife] is None):
+                        print item.firstname + " " + item.lastname + "'s mother does not exist."
+
+                    if self.list[self.list[item.famc].wife].sex != "F":
+                        print item.firstname + " " + item.lastname + "'s mother is not female."
+
+                    if (self.list[item.famc].husb is None) or (self.list[self.list[item.famc].husb] is None):
+                        print item.firstname + " " + item.lastname + "'s father does not exist."
+
+                    if self.list[self.list[item.famc].husb].sex != "M":
+                        print item.firstname + " " + item.lastname + "'s father is not male."
     
     #Runs all the tests, make sure function names start with "test"
     def runTests(self, *args, **kwargs):
