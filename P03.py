@@ -465,6 +465,35 @@ class GedList:
 
                     if self.list[self.list[item.famc].husb].sex != "M":
                         print item.firstname + " " + item.lastname + "'s father is not male."
+                        
+    def testThisDayInHistory(self):
+        curDate = date.today()
+        for id, item in self.list.iteritems():
+            if "@I" in id:
+                birtDay = stringToDate(item.birt)
+                deatDay = stringToDate(item.deat)
+                if birtDay is not None and birtDay.day == curDate.day and birtDay.month == curDate.month:
+                    print item.firstname + " " + item.lastname + " was born on this day in " + str(birtDay.year)
+                if deatDay is not None and deatDay.day == curDate.day and deatDay.month == curDate.month:
+                    print item.firstname + " " + item.lastname + " died on this day in " + str(deatDay.year)
+            elif "@F" in id:
+                marrDay = stringToDate(item.marr)
+                divDay = stringToDate(item.div)
+                husb = self.list[item.husb]
+                wife = self.list[item.wife]
+                if marrDay is not None and marrDay.day == curDate.day and marrDay.month == curDate.month:
+                    print husb.firstname + " " + husb.lastname + " and " + wife.firstname + " " + wife.lastname + " were married on this day in " + str(marrDay.year)
+                if divDay is not None and divDay.day == curDate.day and divDay.month == curDate.month:
+                    print husb.firstname + " " + husb.lastname + " and " + wife.firstname + " " + wife.lastname + " were divorced on this day in " + str(divDay.year)
+                
+    def testUnderageParent(self):
+        for id, item in self.list.iteritems():
+            if "@F" in id:
+                if len(item.chil) > 0:
+                    if item.husb is not None and self.list[item.husb].getAge() < 18:
+                        print "Anomaly: " + self.list[item.husb].firstname + " " + self.list[item.husb].lastname + " is a minor with a child"
+                    if item.wife is not None and self.list[item.wife].getAge() < 18:
+                        print "Anomaly: " + self.list[item.wife].firstname + " " + self.list[item.wife].lastname + " is a minor with a child"
     
     #Runs all the tests, make sure function names start with "test"
     def runTests(self, *args, **kwargs):
