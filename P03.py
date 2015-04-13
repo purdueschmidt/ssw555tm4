@@ -329,23 +329,33 @@ class GedList:
 					if self.list[item.husb].birt is not None:
 						husbBirthDate=stringToDate(self.list[item.husb].birt)
 						if husbBirthDate > divorceDate:
-							print "Error: " + self.list[item.husb].firstname + " " + self.list[item.husb].lastname + " was born after his divorce"
+							print "Error: " + self.list[item.husb].firstname + " " + self.list[item.husb].lastname + " was born after his divorce."
 
 					if self.list[item.wife].birt is not None:
 						wifeBirthDate=stringToDate(self.list[item.wife].birt)
 						if wifeBirthDate > divorceDate:
-							print "Error: " + self.list[item.wife].firstname + " " + self.list[item.wife].lastname + " was born after her divorce"		 
+							print "Error: " + self.list[item.wife].firstname + " " + self.list[item.wife].lastname + " was born after her divorce."		 
 
 					if self.list[item.husb].deat is not None:
 						husbDeathDate=stringToDate(self.list[item.husb].deat)
 						if husbDeathDate < divorceDate:
-							print "Error: " + self.list[item.husb].firstname + " " + self.list[item.husb].lastname + " has died before his divorce"
+							print "Error: " + self.list[item.husb].firstname + " " + self.list[item.husb].lastname + " has died before his divorce."
 
 					if self.list[item.wife].deat is not None:
 						wifeDeathDate=stringToDate(self.list[item.wife].deat)
 						if wifeDeathDate < divorceDate:
-							print "Error: " + self.list[item.wife].firstname + " " + self.list[item.wife].lastname + " has died before her divorce"		 
-					
+							print "Error: " + self.list[item.wife].firstname + " " + self.list[item.wife].lastname + " has died before her divorce."		 
+
+    def testDivorceMarriageCheck(self):
+        for id, item in self.list.iteritems():
+            if "@F" in id:
+                if item.div and not item.marr:
+                    print "Error: " + self.list[item.husb].firstname + " " + self.list[item.husb].lastname + " and "+ self.list[item.wife].firstname + " " + self.list[item.wife].lastname +" were divorced without being married."
+                if item.div and item.marr:
+                    divorceDate = stringToDate(item.div)
+                    marriageDate = stringToDate(item.marr)
+                    if marriageDate > divorceDate:
+                        print "Error: " + self.list[item.husb].firstname + " " + self.list[item.husb].lastname +" and "+ self.list[item.wife].firstname + " " + self.list[item.wife].lastname +" were married after their divorce"					
 					    	                        
     def testMultipleMarriageCheck(self):
         spouseDict = {}
