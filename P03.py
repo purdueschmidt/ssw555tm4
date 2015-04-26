@@ -21,7 +21,7 @@ class GedI:
         self.birt= None
         self.deat = None
         self.famc = None
-        self.fams = None
+        self.fams = []
         
     def getAge(self):
         if self.birt is not None:
@@ -111,7 +111,7 @@ class GedList:
                             elif spl2[1] == "FAMC":
                                 tempged.famc = spl2[2]
                             elif spl2[1] == "FAMS":
-                                tempged.fams = spl2[2]
+                                tempged.fams.append(spl2[2])
                         i += 1
                     self.list[tempged.pointer] = tempged
                     # print "Added " + tempged.pointer + " to list"
@@ -207,24 +207,26 @@ class GedList:
         # note: in python 3, iter() is the exact same as iteritems(). https://stackoverflow.com/questions/10458437/what-is-the-difference-between-dict-items-and-dict-iteritems
         for id, item in self.list.iteritems():
             if re.search("@I.+", id):
-                if item.fams is not None and item.famc is not None:
-                    spouseId = self.list[item.fams].wife if self.list[item.fams].husb == id else self.list[item.fams].husb
-                    parentId1 = self.list[item.famc].wife
-                    parentId2 = self.list[item.famc].husb
-                    
-                    if parentId1 == spouseId:
-                        print "Error: " + item.firstname + " " + item.lastname + " is married to their parent " + self.list[parentId1].firstname + " " + self.list[parentId1].lastname
-                    elif parentId2 == spouseId:
-                        print "Error: " + item.firstname + " " + item.lastname + " is married to their parent " + self.list[parentId2].firstname + " " + self.list[parentId2].lastname
+                if item.fams != [] and item.famc is not None:
+                    for it in item.fams:
+                        spouseId = self.list[it].wife if self.list[it].husb == id else self.list[it].husb
+                        parentId1 = self.list[item.famc].wife
+                        parentId2 = self.list[item.famc].husb
+                        
+                        if parentId1 == spouseId:
+                            print "Error: " + item.firstname + " " + item.lastname + " is married to their parent " + self.list[parentId1].firstname + " " + self.list[parentId1].lastname
+                        elif parentId2 == spouseId:
+                            print "Error: " + item.firstname + " " + item.lastname + " is married to their parent " + self.list[parentId2].firstname + " " + self.list[parentId2].lastname
             
     def testMinorMarriage(self):
         for id, item in self.list.iteritems():
             if re.search("@I.+", id):
-                if item.fams is not None:
-                    spouseId = self.list[item.fams].wife if self.list[item.fams].husb == id else self.list[item.fams].husb
-                    
-                    if self.list[spouseId].getAge() < 18:
-                        print "Error: " + item.firstname + " " + item.lastname + " is married to a minor " + self.list[spouseId].firstname + " " + self.list[spouseId].lastname
+                if item.fams != []:
+                    for it in item.fams:
+                        spouseId = self.list[it].wife if self.list[it].husb == id else self.list[it].husb
+                        
+                        if self.list[spouseId].getAge() < 18:
+                            print "Error: " + item.firstname + " " + item.lastname + " is married to a minor " + self.list[spouseId].firstname + " " + self.list[spouseId].lastname
                         
     def testBirthDeathCheck(self):
         for id, item in self.list.iteritems():
@@ -432,7 +434,8 @@ class GedList:
             print tabString + "Father: " + father.firstname + " " + father.lastname
             print tabString + "Mother: " + mother.firstname + " " + mother.lastname
             for child in self.list[id].chil:
-                self.printFamily(self.list[child].fams, tabs + 1)
+                for it in self.list[child].fams:
+                    self.printFamily(it, tabs + 1)
 
     def testDeadWhileMarried(self):
         for id, item in self.list.iteritems():
@@ -504,6 +507,22 @@ class GedList:
                         print "Anomaly: " + self.list[item.husb].firstname + " " + self.list[item.husb].lastname + " is a minor with a child"
                     if item.wife is not None and self.list[item.wife].getAge() < 18:
                         print "Anomaly: " + self.list[item.wife].firstname + " " + self.list[item.wife].lastname + " is a minor with a child"
+
+    def testCircular(self):
+        for id, item in self.list.iteritems():
+            if "@F" in id:
+                mother = self.list[item.husb]
+                father = self.list[item.wife]
+                for ch in item.chil:
+                    child = self.list[ch]
+                    for id2, item2 in self.list.iteritems():
+                        if "@F" in id2:
+                            if father.pointer in item2.chil:
+                                if child.pointer == item2.husb or child.pointer == item2.wife:
+                                    print child.firstname + " " + child.lastname + " and " + father.firstname + " " + father.lastname + " are in a circular loop"
+                            if mother.pointer in item2.chil:
+                                if child.pointer == item2.husb or child.pointer == item2.wife:
+                                    print child.firstname + " " + child.lastname + " and " + mother.firstname + " " + mother.lastname + " are in a circular loop"
     
     #Runs all the tests, make sure function names start with "test"
     def runTests(self, *args, **kwargs):
