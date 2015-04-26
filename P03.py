@@ -5,6 +5,7 @@ import datetime
 from datetime import date
 from __builtin__ import str
 from inspect import ismethod
+import collections
 
 def stringToDate(str):
     if str is not None:
@@ -321,7 +322,21 @@ class GedList:
                         wifeBirthDate=stringToDate(self.list[item.wife].birt)
                         if wifeBirthDate > marrDate:
                             print "Error: " + self.list[item.wife].firstname + " " + self.list[item.wife].lastname + " was born after marriage"         
-    
+
+    def testSelfMarriageCheck(self):
+        for id, item in self.list.iteritems():
+            if "@F" in id:
+                if item.husb == item.wife:
+                    print "Error: " + self.list[item.husb].firstname + " " + self.list[item.husb].lastname + " is married to self."
+
+    def testSelfSiblingCheck(self):
+        for id, item in self.list.iteritems():
+            if "@F" in id:
+                selfChildList = set([x for x in item.chil if item.chil.count(x) > 1])
+                for selfChild in selfChildList:
+                    if selfChild is not None:
+                        print "Error: " + self.list[selfChild].firstname + " " +  self.list[selfChild].lastname + " is a sibling to themselves."
+                    
     def testDivorceBirthDeathCheck(self):
 		for id, item in self.list.iteritems():
 			if "@F" in id:
