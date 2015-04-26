@@ -434,8 +434,9 @@ class GedList:
             print tabString + "Father: " + father.firstname + " " + father.lastname
             print tabString + "Mother: " + mother.firstname + " " + mother.lastname
             for child in self.list[id].chil:
-                for it in self.list[child].fams:
-                    self.printFamily(it, tabs + 1)
+                if child != self.list[id].husb and child != self.list[id].wife:
+                    for it in self.list[child].fams:
+                        self.printFamily(it, tabs + 1)
 
     def testDeadWhileMarried(self):
         for id, item in self.list.iteritems():
@@ -524,6 +525,21 @@ class GedList:
                                 if child.pointer == item2.husb or child.pointer == item2.wife:
                                     print child.firstname + " " + child.lastname + " and " + mother.firstname + " " + mother.lastname + " are in a circular loop"
 
+    def testFamilySummary(self):
+        for id, item in self.list.iteritems():
+            if "@I" in id:
+                print "Id: " + id
+                print "Name: " + item.firstname + " " + item.lastname
+                print "Sex: " + item.sex
+                print "Birthday: " + item.birt
+
+    def testSelfBirth(self):
+        for id, item in self.list.iteritems():
+            if "@F" in id:
+                for child in item.chil:
+                    if child == item.husb or child == item.wife:
+                        print self.list[child].firstname + " " + self.list[child].lastname + " is their own child"
+    
     def testBirthAfterCurrentDate(self):
         for id, item in self.list.iteritems():
             if "@I" in id:
