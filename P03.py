@@ -523,6 +523,12 @@ class GedList:
                             if mother.pointer in item2.chil:
                                 if child.pointer == item2.husb or child.pointer == item2.wife:
                                     print child.firstname + " " + child.lastname + " and " + mother.firstname + " " + mother.lastname + " are in a circular loop"
+
+    def testBirthAfterCurrentDate(self):
+        for id, item in self.list.iteritems():
+            if "@I" in id:
+                if stringToDate(item.birt) > date.today():
+                    print item.firstname + " " + item.lastname + " has a birthdy after the current date!"
     
     #Runs all the tests, make sure function names start with "test"
     def runTests(self, *args, **kwargs):
